@@ -4,11 +4,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
  
 class MainActivity : AppCompatActivity(), SnakeView.UiHost {
@@ -22,11 +22,10 @@ class MainActivity : AppCompatActivity(), SnakeView.UiHost {
         super.onCreate(savedInstanceState)
  
         val root = FrameLayout(this)
-        val snakeView = SnakeView(this, this)
-        root.addView(snakeView, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
-        ))
  
+        // Build the name-input overlay FIRST. SnakeView's constructor can call
+        // showNameInput() immediately (for a first-time player), so overlay,
+        // nameInput and errorText must already exist before SnakeView is created.
         overlay = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -34,7 +33,6 @@ class MainActivity : AppCompatActivity(), SnakeView.UiHost {
             visibility = View.GONE
             setPadding(80, 0, 80, 0)
         }
- 
         val title = TextView(this).apply {
             text = "اسمت رو بنویس"
             setTextColor(Color.WHITE)
@@ -59,7 +57,6 @@ class MainActivity : AppCompatActivity(), SnakeView.UiHost {
                 onSubmitCallback?.invoke(nameInput.text.toString().trim())
             }
         }
- 
         overlay.addView(title)
         overlay.addView(nameInput, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
@@ -67,6 +64,11 @@ class MainActivity : AppCompatActivity(), SnakeView.UiHost {
         overlay.addView(errorText)
         overlay.addView(submitBtn)
  
+        // Now it's safe to construct SnakeView.
+        val snakeView = SnakeView(this, this)
+        root.addView(snakeView, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+        ))
         root.addView(overlay, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
         ))
@@ -85,3 +87,4 @@ class MainActivity : AppCompatActivity(), SnakeView.UiHost {
         nameInput.setText("")
     }
 }
+ 
